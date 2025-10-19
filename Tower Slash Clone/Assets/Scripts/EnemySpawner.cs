@@ -16,16 +16,24 @@ public class EnemySpawner : MonoBehaviour
     public float maxSpawnInterval = 2.0f;
 
     private void Start()
-    {
-        if (enemyPrefabs == null || enemyPrefabs.Length == 0)
-        {
-            Debug.LogError($"{name}: No enemy prefabs assigned!");
-            enabled = false;
-            return;
-        }
+{
+    StartCoroutine(WaitForPlayerAndSpawn());
+}
 
-        StartCoroutine(SpawnRoutine());
+private IEnumerator WaitForPlayerAndSpawn()
+{
+    // Wait until the player exists before spawning anything
+    yield return new WaitUntil(() => FindFirstObjectByType<PlayerController>() != null);
+
+    Debug.Log($"✅ Player detected by {name}, starting spawn routine.");
+
+    // Now start normal spawning
+    while (true)
+    {
+        yield return new WaitForSeconds(UnityEngine.Random.Range(minSpawnInterval, maxSpawnInterval));
+        SpawnRandomEnemy();
     }
+}
 
     private IEnumerator SpawnRoutine()
     {
