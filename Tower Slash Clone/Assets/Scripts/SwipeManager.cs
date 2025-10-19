@@ -4,62 +4,73 @@ using System;
 public class SwipeManager : MonoBehaviour
 {
     public static event Action<Vector2> OnSwipe;
-    [SerializeField] private float minSwipeDistance = 50f;
 
-    private Vector2 startTouch;
-    private Vector2 endTouch;
+    [Header("Swipe Settings")]
+    public float minSwipeDistance = 50f; // pixels
 
-    void Update()
+    private Vector2 startTouchPosition;
+    private Vector2 endTouchPosition;
+
+    private void Update()
     {
-        // Touch input
-        if (Input.touchCount > 0)
-        {
-            Touch touch = Input.GetTouch(0);
-            if (touch.phase == TouchPhase.Began)
-                startTouch = touch.position;
-            if (touch.phase == TouchPhase.Ended)
-            {
-                endTouch = touch.position;
-                DetectSwipe();
-            }
-        }
-
-#if UNITY_EDITOR
-        // Mouse swipe for testing in editor
-        if (Input.GetMouseButtonDown(0))
-            startTouch = Input.mousePosition;
-        if (Input.GetMouseButtonUp(0))
-        {
-            endTouch = Input.mousePosition;
-            DetectSwipe();
-        }
+        // Handle both mouse (PC) and touch (mobile)
+#if UNITY_EDITOR || UNITY_STANDALONE
+        HandleMouseInput();
+#else
+        HandleTouchInput();
 #endif
     }
 
-    void DetectSwipe()
+    // ✅ --- Mouse Input for Editor / PC Testing ---
+    private void HandleMouseInput()
     {
-        Vector2 delta = endTouch - startTouch;
-        if (delta.magnitude < minSwipeDistance) return;
+        if (Input.GetMouseButtonDown(0))
+            startTouchPosition = Input.mousePosition;
 
-        Vector2 direction = delta.normalized;
-
-        // ✅ Debug: print swipe direction to console
-        string dirName = GetSwipeDirectionName(direction);
-        Debug.Log($"Swipe detected: {dirName} ({direction})");
-
-        OnSwipe?.Invoke(direction);
+        if (Input.GetMouseButtonUp(0))
+        {
+            endTouchPosition = Input.mousePosition;
+            ProcessSwipe(endTouchPosition - startTouchPosition);
+        }
     }
 
-    private string GetSwipeDirectionName(Vector2 dir)
+    // ✅ --- Touch Input for Mobile ---
+    private void HandleTouchInput()
     {
-        // Determine the cardinal direction for easy reading
+        if (Input.touchCount > 0)
+        {
+            Touch touch = Input.GetTouch(0);
+
+            if (touch.phase == TouchPhase.Began)
+                startTouchPosition = touch.position;
+
+            else if (touch.phase == TouchPhase.Ended)
+            {
+                endTouchPosition = touch.position;
+                ProcessSwipe(endTouchPosition - startTouchPosition);
+            }
+        }
+    }
+
+    // ✅ --- Swipe & Tap Detection ---
+    private void ProcessSwipe(Vector2 delta)
+    {
+        // Tap (short movement)
+        if (delta.magnitude < minSwipeDistance)
+        {
+            Debug.Log("⚡ Tap detected! Attempting to trigger Dash...");
+            FindFirstObjectByType<DashGauge>()?.UseDash(); // <-- TAP DASH
+            return;
+        }
+
+        // Swipe
+        Vector2 dir = delta.normalized;
+        OnSwipe?.Invoke(dir);
+
+        // Optional: Debug direction in console
         if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y))
-        {
-            return dir.x > 0 ? "Right" : "Left";
-        }
+            Debug.Log(dir.x > 0 ? "👉 Swiped Right" : "👈 Swiped Left");
         else
-        {
-            return dir.y > 0 ? "Up" : "Down";
-        }
+            Debug.Log(dir.y > 0 ? "⬆️ Swiped Up" : "⬇️ Swiped Down");
     }
 }

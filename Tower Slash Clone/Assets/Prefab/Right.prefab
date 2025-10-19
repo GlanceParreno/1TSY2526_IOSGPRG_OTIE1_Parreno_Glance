@@ -102,7 +102,7 @@ GameObject:
   - component: {fileID: 1860394826042087298}
   m_Layer: 0
   m_Name: Right
-  m_TagString: Left
+  m_TagString: Right
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -137,3 +137,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyController
   enemyType: 0
   fallSpeed: 2
+  slashLineY: 3.1
+  isRotating: 0
+  rotateSpeed: 360
+  powerupPrefab: {fileID: 8737426814500009707, guid: b14599e02bca50548b12d9ed26ebb666, type: 3}

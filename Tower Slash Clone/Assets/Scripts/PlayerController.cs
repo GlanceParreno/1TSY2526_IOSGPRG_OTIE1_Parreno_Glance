@@ -10,24 +10,21 @@ public class PlayerController : MonoBehaviour
         currentHealth = maxHealth;
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.CompareTag("Enemy"))
-        {
-            TakeDamage(1);
-            Destroy(other.gameObject);
-        }
-    }
+    public void TakeDamage(int amount)
+{
+    currentHealth -= amount;
+    currentHealth = Mathf.Max(0, currentHealth);
 
-    public void TakeDamage(int damage)
-    {
-        currentHealth -= damage;
-        Debug.Log("Player hit! Health: " + currentHealth);
+    FindFirstObjectByType<UIManager>()?.UpdateHP(currentHealth);
 
-        if (currentHealth <= 0)
-        {
-            Debug.Log("Game Over!");
-            // Later: trigger GameManager.GameOver()
-        }
-    }
+    if (currentHealth <= 0)
+        GameManager.Instance?.GameOver();
+}
+
+public void AddHealth(int amount)
+{
+    currentHealth += amount;
+    currentHealth = Mathf.Min(currentHealth, maxHealth);
+    FindFirstObjectByType<UIManager>()?.UpdateHP(currentHealth);
+}
 }

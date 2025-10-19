@@ -137,3 +137,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyController
   enemyType: 0
   fallSpeed: 2
+  slashLineY: -3.1
+  isRotating: 0
+  rotateSpeed: 360
+  powerupPrefab: {fileID: 8737426814500009707, guid: b14599e02bca50548b12d9ed26ebb666, type: 3}
